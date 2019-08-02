@@ -17,12 +17,14 @@ package bookshelf
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"os"
 
 	"cloud.google.com/go/datastore"
 	"cloud.google.com/go/pubsub"
 	"cloud.google.com/go/storage"
+	"google.golang.org/api/option"
 
 	"gopkg.in/mgo.v2"
 
@@ -38,6 +40,7 @@ var (
 
 	StorageBucket     *storage.BucketHandle
 	StorageBucketName string
+	StorageBucketName1 string
 
 	SessionStore sessions.Store
 
@@ -50,23 +53,24 @@ var (
 const PubsubTopicID = "fill-book-details"
 
 func init() {
+	fmt.Printf("\nconfigureCloudSQL!\n")
 	var err error
 
 	// To use the in-memory test database, uncomment the next line.
-	DB = newMemoryDB()
+	//DB = newMemoryDB()
 
 	// [START cloudsql]
 	// To use Cloud SQL, uncomment the following lines, and update the username,
 	// password and instance connection string. When running locally,
 	// localhost:3306 is used, and the instance name is ignored.
-	// DB, err = configureCloudSQL(cloudSQLConfig{
-	// 	Username: "root",
-	// 	Password: "",
-	// 	// The connection name of the Cloud SQL v2 instance, i.e.,
-	// 	// "project:region:instance-id"
-	// 	// Cloud SQL v1 instances are not supported.
-	// 	Instance: "",
-	// })
+	DB, err = configureCloudSQL(cloudSQLConfig{
+		Username: "root",
+		Password: "123",
+		// The connection name of the Cloud SQL v2 instance, i.e.,
+		// "project:region:instance-id"
+		// Cloud SQL v1 instances are not supported.
+		Instance: "ruihuang-bookshelf01:us-east4:library",
+	})
 	// [END cloudsql]
 
 	// [START mongo]
@@ -94,13 +98,9 @@ func init() {
 	// To configure Cloud Storage, uncomment the following lines and update the
 	// bucket name.
 	//
-	// StorageBucketName = "<your-storage-bucket>"
-	// StorageBucket, err = configureStorage(StorageBucketName)
+	StorageBucketName = "ruihuang-bookshelf-bucket01"
+	StorageBucket, err = configureStorage(StorageBucketName)
 	// [END storage]
-
-	if err != nil {
-		log.Fatal(err)
-	}
 
 	// [START auth]
 	// To enable user sign-in, uncomment the following lines and update the
@@ -108,7 +108,7 @@ func init() {
 	// You will also need to update OAUTH2_CALLBACK in app.yaml when pushing to
 	// production.
 	//
-	// OAuthConfig = configureOAuthClient("clientid", "clientsecret")
+	OAuthConfig = configureOAuthClient("64013836047-c3nk16plvan7ll1erhu8ngsplsblm7r1.apps.googleusercontent.com", "DWJyCffv2mYZLF0cBJOvvinA")
 	// [END auth]
 
 	// [START sessions]
@@ -124,7 +124,7 @@ func init() {
 	// [START pubsub]
 	// To configure Pub/Sub, uncomment the following lines and update the project ID.
 	//
-	// PubsubClient, err = configurePubsub("<your-project-id>")
+	PubsubClient, err = configurePubsub("ruihuang-bookshelf01")
 	// [END pubsub]
 
 	if err != nil {
@@ -143,7 +143,7 @@ func configureDatastoreDB(projectID string) (BookDatabase, error) {
 
 func configureStorage(bucketID string) (*storage.BucketHandle, error) {
 	ctx := context.Background()
-	client, err := storage.NewClient(ctx)
+	client, err := storage.NewClient(ctx, option.WithCredentialsFile("/usr/local/google/home/ruihuang/Downloads/ruihuang-bookshelf01-4a4ea6668b1f.json"))
 	if err != nil {
 		return nil, err
 	}
@@ -158,7 +158,7 @@ func configurePubsub(projectID string) (*pubsub.Client, error) {
 	}
 
 	ctx := context.Background()
-	client, err := pubsub.NewClient(ctx, projectID)
+	client, err := pubsub.NewClient(ctx, projectID, option.WithCredentialsFile("/usr/local/google/home/ruihuang/Downloads/ruihuang-bookshelf01-4a4ea6668b1f.json"))
 	if err != nil {
 		return nil, err
 	}
@@ -193,8 +193,10 @@ type cloudSQLConfig struct {
 }
 
 func configureCloudSQL(config cloudSQLConfig) (BookDatabase, error) {
+	fmt.Printf("\nconfigureCloudSQL! inside\n")
 	if os.Getenv("GAE_INSTANCE") != "" {
 		// Running in production.
+		fmt.Printf("\nconfigureCloudSQL! GAE_INSTANCE\n")
 		return newMySQLDB(MySQLConfig{
 			Username:   config.Username,
 			Password:   config.Password,

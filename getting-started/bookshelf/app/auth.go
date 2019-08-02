@@ -18,6 +18,7 @@ import (
 	"context"
 	"encoding/gob"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/url"
 
@@ -25,7 +26,7 @@ import (
 
 	"golang.org/x/oauth2"
 
-	"github.com/GoogleCloudPlatform/golang-samples/getting-started/bookshelf"
+	"../../bookshelf"
 	uuid "github.com/gofrs/uuid"
 )
 
@@ -44,6 +45,7 @@ const (
 
 func init() {
 	// Gob encoding for gorilla/sessions
+	fmt.Printf("dddd.")
 	gob.Register(&oauth2.Token{})
 	gob.Register(&Profile{})
 }

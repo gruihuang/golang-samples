@@ -30,7 +30,7 @@ import (
 
 	"cloud.google.com/go/pubsub"
 
-	"github.com/GoogleCloudPlatform/golang-samples/getting-started/bookshelf"
+	"../../bookshelf"
 )
 
 const subName = "book-worker-sub"
@@ -44,6 +44,7 @@ var (
 )
 
 func main() {
+	fmt.Printf("\nPPPPPPPPPPPP\n\n")
 	ctx := context.Background()
 
 	if bookshelf.PubsubClient == nil {

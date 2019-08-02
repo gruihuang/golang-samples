@@ -35,7 +35,7 @@ import (
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 
-	"github.com/GoogleCloudPlatform/golang-samples/getting-started/bookshelf"
+	"../../bookshelf"
 )
 
 var (
