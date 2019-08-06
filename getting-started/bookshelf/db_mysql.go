@@ -99,7 +99,9 @@ func newMySQLDB(config MySQLConfig) (BookDatabase, error) {
 		return nil, err
 	}
 
-	conn, err := sql.Open("mysql", config.dataStoreName("library"))
+	connectstring := config.dataStoreName("library")
+	fmt.Printf("connectstring: %v\n", connectstring)
+	conn, err := sql.Open("mysql", connectstring)
 	if err != nil {
 		return nil, fmt.Errorf("mysql: could not get a connection: %v", err)
 	}
@@ -293,7 +295,9 @@ func (db *mysqlDB) UpdateBook(b *Book) error {
 
 // ensureTableExists checks the table exists. If not, it creates it.
 func (config MySQLConfig) ensureTableExists() error {
-	conn, err := sql.Open("mysql", config.dataStoreName(""))
+	connectstring := config.dataStoreName("")
+	fmt.Printf("connectstring (ensure): %v\n", connectstring)
+	conn, err := sql.Open("mysql", connectstring)
 	if err != nil {
 		return fmt.Errorf("mysql: could not get a connection: %v", err)
 	}
